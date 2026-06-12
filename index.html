@@ -94,7 +94,10 @@ h2 em,h1 em{font-style:italic;font-weight:340}
 .textlink:hover{color:var(--garnet-deep)}
 
 /* ============ NAV ============ */
-.nav{position:fixed;inset:0 0 auto 0;z-index:50;display:flex;align-items:center;justify-content:space-between;gap:18px;padding:18px clamp(20px,4vw,44px);color:var(--paper);transition:background .35s ease,color .35s ease,box-shadow .35s ease,padding .35s ease}
+.nav{position:fixed;inset:0 0 auto 0;z-index:50;display:flex;align-items:center;justify-content:space-between;gap:18px;padding:18px clamp(20px,4vw,44px);color:var(--paper);transition:background .35s ease,color .35s ease,box-shadow .35s ease,padding .35s ease,transform .4s cubic-bezier(.22,.61,.21,1)}
+.nav.hide{transform:translateY(-110%)}
+.nav:focus-within{transform:none}
+@media (hover:none){.nav.scrolled{-webkit-backdrop-filter:none;backdrop-filter:none;background:rgba(251,249,245,.97)}}
 .nav.scrolled{background:rgba(251,249,245,.94);-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px);color:var(--ink);box-shadow:0 1px 0 var(--hairline);padding-top:12px;padding-bottom:12px}
 .brand{text-decoration:none;line-height:1.1}
 .brand .name{font-family:'Fraunces',serif;font-size:1.35rem;font-weight:500;display:block}
@@ -1172,8 +1175,20 @@ footer{background:var(--ink);color:rgba(251,249,245,.82);padding:clamp(60px,7vw,
     ctaWater.style.transform = 'translate(' + (-50 + (cp2 - 0.5) * 14) + '%, -50%)';
 
     /* chrome */
+    chrome(sy, vh);
+  }
+
+  var lastY = 0;
+  function chrome(sy, vh){
     nav.classList.toggle('scrolled', sy > 40);
     bar.classList.toggle('show', sy > vh * 0.65);
+    var dy = sy - lastY;
+    if (menu.classList.contains('open') || sy < 120 || dy < -4){
+      nav.classList.remove('hide');
+    } else if (dy > 6){
+      nav.classList.add('hide');
+    }
+    lastY = sy;
   }
 
   var ticking = false;
@@ -1183,9 +1198,7 @@ footer{background:var(--ink);color:rgba(251,249,245,.82);padding:clamp(60px,7vw,
       requestAnimationFrame(function(){ ticking = false; render(); });
     }
     if (!fx){
-      var sy = window.scrollY || 0;
-      nav.classList.toggle('scrolled', sy > 40);
-      bar.classList.toggle('show', sy > window.innerHeight * 0.65);
+      chrome(window.scrollY || 0, window.innerHeight);
     }
   }
   window.addEventListener('scroll', onScroll, {passive:true});
